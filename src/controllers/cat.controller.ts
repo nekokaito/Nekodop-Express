@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
-import type { Controller } from "../utils/controllerWrapper";
+import type { Controller } from "../utils/controllerWrapper.ts";
 
 export const createCat: Controller = async ({ req, res }) => {
   const id = uuidv4();
@@ -22,7 +22,7 @@ export const createCat: Controller = async ({ req, res }) => {
 
   // Convert adopted to integer
   const adoptedInt = adopted ? 1 : 0;
-  
+
 
   await db`
     INSERT INTO cats (
