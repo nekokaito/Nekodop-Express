@@ -1,0 +1,19 @@
+{
+  "name": "nekodop-backend",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "scripts": {
+    "start": "bun run src/app.ts"
+  },
+  "dependencies": {
+    "express": "latest",
+    "@neondatabase/serverless": "latest",
+    "dotenv": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest"
+  }
+}
