@@ -1,6 +1,6 @@
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
-import type { Controller } from "../utils/controllerWrapper.ts";
+import type { Controller } from "../utils/controllerWrapper";
 
 export const registerUser: Controller = async ({ req, res }) => {
   const { userName, email, password, profilePicture } = req.body;

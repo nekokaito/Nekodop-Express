@@ -4,8 +4,8 @@
   "main": "src/app.ts",
   "type": "module",
   "scripts": {
-    "start": "ts-node src/app.ts",
-    "vercel-build": "tsc"
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",

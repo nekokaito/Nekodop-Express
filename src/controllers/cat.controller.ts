@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
-import type { Controller } from "../utils/controllerWrapper.ts";
+import type { Controller } from "../utils/controllerWrapper";
 
 export const createCat: Controller = async ({ req, res }) => {
   const id = uuidv4();

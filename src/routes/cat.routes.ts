@@ -7,8 +7,8 @@ import {
   getCatsByOwner,
   updateCat,
   deleteCat,
-} from "../controllers/cat.controller.ts";
-import { wrap } from "../utils/controllerWrapper.ts";
+} from "../controllers/cat.controller";
+import { wrap } from "../utils/controllerWrapper";
 
 const router = Router();
 
