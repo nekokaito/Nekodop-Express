@@ -25,9 +25,14 @@ export const createCat = async (req: Request, res: Response) => {
   res.json({ message: "Cat posted for adoption", catPost: req.body });
 };
 
-export const getCats = async (req: Request, res: Response) => {
+export const getCats = async (_req: Request, res: Response) => {
   const cats =
     await db`SELECT * FROM cats WHERE adopted = 0 AND is_approved = 1`;
+  res.json({ message: "Cats retrieved successfully", cats });
+};
+
+export const getCatsAdmin = async (_req: Request, res: Response) => {
+  const cats = await db`SELECT * FROM cats`;
   res.json({ message: "Cats retrieved successfully", cats });
 };
 
@@ -36,6 +41,12 @@ export const getCatById = async (req: Request, res: Response) => {
   const cat = await db`SELECT * FROM cats WHERE id = ${id}`.then((r) => r[0]);
   if (!cat) return res.status(404).json({ message: "Cat not found" });
   res.json({ message: "Cat retrieved successfully", cat });
+};
+
+export const getCatsByOwner = async (req: Request, res: Response) => {
+  const { owner_id } = req.params;
+  const cats = await db`SELECT * FROM cats WHERE cat_owner_id = ${owner_id}`;
+  res.json({ message: "Cats retrieved successfully", cats });
 };
 
 export const updateCat = async (req: Request, res: Response) => {
