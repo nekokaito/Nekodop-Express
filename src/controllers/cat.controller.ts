@@ -1,0 +1,69 @@
+import type { Request, Response } from "express";
+import { db } from "../db/neonClient";
+import { v4 as uuidv4 } from "uuid";
+
+export const createCat = async (req: Request, res: Response) => {
+  const id = uuidv4();
+  const {
+    catOwnerId,
+    catName,
+    catImage,
+    catAge,
+    catGender,
+    catDescription,
+    ownerName,
+    ownerAddress,
+    ownerPhone,
+    ownerEmail,
+    adopted,
+    additionalInformation,
+  } = req.body;
+
+  await db`INSERT INTO cats (id, cat_owner_id, cat_name, cat_image, cat_age, cat_gender, cat_description, owner_name, owner_address, owner_phone, owner_email, adopted, additional_information)
+           VALUES (${id}, ${catOwnerId}, ${catName}, ${catImage}, ${catAge}, ${catGender}, ${catDescription}, ${ownerName}, ${ownerAddress}, ${ownerPhone}, ${ownerEmail}, ${adopted}, ${additionalInformation})`;
+
+  res.json({ message: "Cat posted for adoption", catPost: req.body });
+};
+
+export const getCats = async (req: Request, res: Response) => {
+  const cats =
+    await db`SELECT * FROM cats WHERE adopted = 0 AND is_approved = 1`;
+  res.json({ message: "Cats retrieved successfully", cats });
+};
+
+export const getCatById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const cat = await db`SELECT * FROM cats WHERE id = ${id}`.then((r) => r[0]);
+  if (!cat) return res.status(404).json({ message: "Cat not found" });
+  res.json({ message: "Cat retrieved successfully", cat });
+};
+
+export const updateCat = async (req: Request, res: Response) => {
+  const { cat_id } = req.params;
+  const {
+    catName,
+    catImage,
+    catAge,
+    catGender,
+    catDescription,
+    ownerAddress,
+    ownerPhone,
+    ownerEmail,
+    adopted,
+    isApproved,
+    additionalInformation,
+  } = req.body;
+
+  await db`UPDATE cats SET cat_name = ${catName}, cat_image = ${catImage}, cat_age = ${catAge}, cat_gender = ${catGender},
+           cat_description = ${catDescription}, owner_address = ${ownerAddress}, owner_phone = ${ownerPhone},
+           owner_email = ${ownerEmail}, adopted = ${adopted}, is_approved = ${isApproved}, additional_information = ${additionalInformation}
+           WHERE id = ${cat_id}`;
+
+  res.json({ message: "Cat updated successfully" });
+};
+
+export const deleteCat = async (req: Request, res: Response) => {
+  const { cat_id } = req.params;
+  await db`DELETE FROM cats WHERE id = ${cat_id}`;
+  res.json({ message: "Cat deleted successfully" });
+};
