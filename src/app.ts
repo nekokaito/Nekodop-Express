@@ -15,9 +15,3 @@ app.get("/", (req, res) => {
 });
 app.use("/", userRoutes);
 app.use("/", catRoutes);
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
