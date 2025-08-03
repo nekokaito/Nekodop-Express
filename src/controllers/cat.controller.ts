@@ -16,12 +16,22 @@ export const createCat: Controller = async ({ req, res }) => {
     ownerAddress,
     ownerPhone,
     ownerEmail,
-    adopted,
+    adopted = false,
     additionalInformation,
   } = req.body;
 
-  await db`INSERT INTO cats (id, cat_owner_id, cat_name, cat_image, cat_age, cat_gender, cat_description, owner_name, owner_address, owner_phone, owner_email, adopted, additional_information)
-           VALUES (${id}, ${catOwnerId}, ${catName}, ${catImage}, ${catAge}, ${catGender}, ${catDescription}, ${ownerName}, ${ownerAddress}, ${ownerPhone}, ${ownerEmail}, ${adopted}, ${additionalInformation})`;
+  // Convert adopted to integer
+  const adoptedInt = adopted ? 1 : 0;
+  
+
+  await db`
+    INSERT INTO cats (
+      id, cat_owner_id, cat_name, cat_image, cat_age, cat_gender, cat_description,
+      owner_name, owner_address, owner_phone, owner_email, adopted, additional_information
+    ) VALUES (
+      ${id}, ${catOwnerId}, ${catName}, ${catImage}, ${catAge}, ${catGender}, ${catDescription},
+      ${ownerName}, ${ownerAddress}, ${ownerPhone}, ${ownerEmail}, ${adoptedInt}, ${additionalInformation}
+    )`;
 
   res.json({ message: "Cat posted for adoption", catPost: req.body });
 };
@@ -66,10 +76,24 @@ export const updateCat: Controller = async ({ req, res }) => {
     additionalInformation,
   } = req.body;
 
-  await db`UPDATE cats SET cat_name = ${catName}, cat_image = ${catImage}, cat_age = ${catAge}, cat_gender = ${catGender},
-           cat_description = ${catDescription}, owner_address = ${ownerAddress}, owner_phone = ${ownerPhone},
-           owner_email = ${ownerEmail}, adopted = ${adopted}, is_approved = ${isApproved}, additional_information = ${additionalInformation}
-           WHERE id = ${cat_id}`;
+
+  const adoptedInt = adopted ? 1 : 0;
+  const isApprovedInt = isApproved ? 1 : 0;
+
+  await db`
+    UPDATE cats SET 
+      cat_name = ${catName},
+      cat_image = ${catImage},
+      cat_age = ${catAge},
+      cat_gender = ${catGender},
+      cat_description = ${catDescription},
+      owner_address = ${ownerAddress},
+      owner_phone = ${ownerPhone},
+      owner_email = ${ownerEmail},
+      adopted = ${adoptedInt},
+      is_approved = ${isApprovedInt},
+      additional_information = ${additionalInformation}
+    WHERE id = ${cat_id}`;
 
   res.json({ message: "Cat updated successfully" });
 };
