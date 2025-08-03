@@ -38,3 +38,10 @@ export const deleteUser = async (req: Request, res: Response) => {
   await db`DELETE FROM users WHERE id = ${user_id}`;
   res.json({ message: "User deleted successfully" });
 };
+export const isAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await db`SELECT user_role FROM users WHERE id = ${id}`.then(
+    (r) => r[0]
+  );
+  res.json(user && user.user_role === "admin");
+};
