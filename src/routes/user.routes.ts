@@ -9,16 +9,17 @@ import {
   deleteUser,
   isAdmin,
 } from "../controllers/user.controller";
+import { wrap } from "../utils/controllerWrapper";
 
 const router = Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.get("/get-user/:id", getUserById);
-router.get("/get-users", getUsers);
-router.put("/update-user/:user_id", updateUser);
-router.put("/update-password/:user_id", updatePassword);
-router.delete("/delete-user/:req_id/:user_id", deleteUser);
-router.get("/is-admin/:id", isAdmin);
+router.post("/register", wrap(registerUser));
+router.post("/login", wrap(loginUser));
+router.get("/get-user/:id", wrap(getUserById));
+router.get("/get-users", wrap(getUsers));
+router.put("/update-user/:user_id", wrap(updateUser));
+router.put("/update-password/:user_id", wrap(updatePassword));
+router.delete("/delete-user/:req_id/:user_id", wrap(deleteUser));
+router.get("/is-admin/:id", wrap(isAdmin));
 
 export default router;

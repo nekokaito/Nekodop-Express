@@ -7,7 +7,7 @@ export const registerUser: Controller = async ({ req, res }) => {
   const id = uuidv4();
 
   await db`INSERT INTO users (id, name, email, password, profile_picture) VALUES (${id}, ${userName}, ${email}, ${password}, ${profilePicture})`;
-
+  
   res.json({
     message: "User created",
     user: { id, name: userName, email, profilePicture },

@@ -6,14 +6,16 @@
     "start": "bun run src/app.ts"
   },
   "dependencies": {
-    "express": "latest",
     "@neondatabase/serverless": "latest",
+    "cors": "^2.8.5",
     "dotenv": "latest",
+    "express": "latest",
     "uuid": "latest"
   },
   "devDependencies": {
-    "typescript": "latest",
+    "@types/cors": "^2.8.19",
     "@types/express": "latest",
-    "@types/node": "latest"
+    "@types/node": "latest",
+    "typescript": "latest"
   }
 }
