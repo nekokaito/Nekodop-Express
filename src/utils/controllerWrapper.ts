@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 export type Controller = (context: {
   req: Request;
   res: Response;
-}) => Promise<void>;
+}) => Promise<void | Response>;
 
 export const wrap = (controller: Controller) => {
   return (req: Request, res: Response, next: NextFunction) => {

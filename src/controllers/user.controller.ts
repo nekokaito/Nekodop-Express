@@ -1,8 +1,8 @@
-import type { Request, Response } from "express";
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
+import type { Controller } from "../utils/controllerWrapper";
 
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser: Controller = async ({ req, res }) => {
   const { userName, email, password, profilePicture } = req.body;
   const id = uuidv4();
 
@@ -14,7 +14,7 @@ export const registerUser = async (req: Request, res: Response) => {
   });
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser: Controller = async ({ req, res }) => {
   const { email, password } = req.body;
   const user =
     await db`SELECT * FROM users WHERE email = ${email} AND password = ${password}`.then(
@@ -25,19 +25,19 @@ export const loginUser = async (req: Request, res: Response) => {
   res.json({ message: "Login successful", user });
 };
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUserById: Controller = async ({ req, res }) => {
   const { id } = req.params;
   const user = await db`SELECT * FROM users WHERE id = ${id}`.then((r) => r[0]);
   if (!user) return res.status(404).json({ message: "User not found" });
   res.json({ message: "User retrieved successfully", user });
 };
 
-export const getUsers = async (_req: Request, res: Response) => {
+export const getUsers: Controller = async ({ req, res }) => {
   const users = await db`SELECT * FROM users`;
   res.json({ message: "Users retrieved successfully", users });
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser: Controller = async ({ req, res }) => {
   const { user_id } = req.params;
   const { userName, email, profilePicture } = req.body;
 
@@ -45,7 +45,7 @@ export const updateUser = async (req: Request, res: Response) => {
   res.json({ message: "User updated successfully" });
 };
 
-export const updatePassword = async (req: Request, res: Response) => {
+export const updatePassword: Controller = async ({ req, res }) => {
   const { user_id } = req.params;
   const { currentPassword, newPassword } = req.body;
 
@@ -60,7 +60,7 @@ export const updatePassword = async (req: Request, res: Response) => {
   res.json({ message: "Password updated successfully" });
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser: Controller = async ({ req, res }) => {
   const { req_id, user_id } = req.params;
 
   const admin =
@@ -73,7 +73,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   res.json({ message: "User deleted successfully" });
 };
 
-export const isAdmin = async (req: Request, res: Response) => {
+export const isAdmin: Controller = async ({ req, res }) => {
   const { id } = req.params;
   const user = await db`SELECT user_role FROM users WHERE id = ${id}`.then(
     (r) => r[0]

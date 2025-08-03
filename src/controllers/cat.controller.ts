@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
+import type { Controller } from "../utils/controllerWrapper";
 
-export const createCat = async (req: Request, res: Response) => {
+export const createCat: Controller = async ({ req, res }) => {
   const id = uuidv4();
   const {
     catOwnerId,
@@ -25,31 +26,31 @@ export const createCat = async (req: Request, res: Response) => {
   res.json({ message: "Cat posted for adoption", catPost: req.body });
 };
 
-export const getCats = async (_req: Request, res: Response) => {
+export const getCats: Controller = async ({ req, res }) => {
   const cats =
     await db`SELECT * FROM cats WHERE adopted = 0 AND is_approved = 1`;
   res.json({ message: "Cats retrieved successfully", cats });
 };
 
-export const getCatsAdmin = async (_req: Request, res: Response) => {
+export const getCatsAdmin: Controller = async ({ req, res }) => {
   const cats = await db`SELECT * FROM cats`;
   res.json({ message: "Cats retrieved successfully", cats });
 };
 
-export const getCatById = async (req: Request, res: Response) => {
+export const getCatById: Controller = async ({ req, res }) => {
   const { id } = req.params;
   const cat = await db`SELECT * FROM cats WHERE id = ${id}`.then((r) => r[0]);
   if (!cat) return res.status(404).json({ message: "Cat not found" });
   res.json({ message: "Cat retrieved successfully", cat });
 };
 
-export const getCatsByOwner = async (req: Request, res: Response) => {
+export const getCatsByOwner: Controller = async ({ req, res }) => {
   const { owner_id } = req.params;
   const cats = await db`SELECT * FROM cats WHERE cat_owner_id = ${owner_id}`;
   res.json({ message: "Cats retrieved successfully", cats });
 };
 
-export const updateCat = async (req: Request, res: Response) => {
+export const updateCat: Controller = async ({ req, res }) => {
   const { cat_id } = req.params;
   const {
     catName,
@@ -73,7 +74,7 @@ export const updateCat = async (req: Request, res: Response) => {
   res.json({ message: "Cat updated successfully" });
 };
 
-export const deleteCat = async (req: Request, res: Response) => {
+export const deleteCat: Controller = async ({ req, res }) => {
   const { cat_id } = req.params;
   await db`DELETE FROM cats WHERE id = ${cat_id}`;
   res.json({ message: "Cat deleted successfully" });
