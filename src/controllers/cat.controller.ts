@@ -1,7 +1,7 @@
-import type { Request, Response } from "express";
 import { db } from "../db/neonClient";
 import { v4 as uuidv4 } from "uuid";
 import type { Controller } from "../utils/controllerWrapper";
+
 
 export const createCat: Controller = async ({ req, res }) => {
   const id = uuidv4();
@@ -36,11 +36,14 @@ export const createCat: Controller = async ({ req, res }) => {
   res.json({ message: "Cat posted for adoption", catPost: req.body });
 };
 
+
+
 export const getCats: Controller = async ({ req, res }) => {
   const cats =
     await db`SELECT * FROM cats WHERE adopted = 0 AND is_approved = 1`;
   res.json({ message: "Cats retrieved successfully", cats });
 };
+
 
 export const getCatsAdmin: Controller = async ({ req, res }) => {
   const cats = await db`SELECT * FROM cats`;

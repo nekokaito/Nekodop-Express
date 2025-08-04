@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js"
+    "start": "bun run src/app.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",

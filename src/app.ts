@@ -7,6 +7,7 @@ import catRoutes from "./routes/cat.routes";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -15,3 +16,5 @@ app.get("/", (req, res) => {
 });
 app.use("/", userRoutes);
 app.use("/", catRoutes);
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
