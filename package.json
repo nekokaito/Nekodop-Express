@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "main": "src/app.ts",
   "type": "module",
-  "scripts": {
-    "dev": "ts-node-dev src/app.ts",
+ "scripts": {
+    "start": "bun src/app.ts",
+    "dev": "bun --watch src/app.ts",
     "build": "tsc",
-    "start": "bun run src/app.ts"
+    "start:dist": "node dist/src/app.js",
+    "lint": "eslint --fix src test",
+    "typecheck": "tsc --noEmit",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@neondatabase/serverless": "latest",
