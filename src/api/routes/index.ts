@@ -1,18 +1,24 @@
 import { Router } from "express";
-import { createCat, getCats } from "../controller/cat.controller";
-
+import {
+  createCat,
+  deleteCat,
+  getCatById,
+  getCats,
+  getCatsAdmin,
+  getCatsByOwner,
+  updateCat,
+} from "../controller/cat.controller";
 
 const router = Router();
 
-
-// ! cats
-router.post("/create-cat", createCat)
-router.get("/get-cats", getCats)
-// router.get("/admin/get-cats", getCatsAdmin)
-// router.get("/get-cat/:id", getCatById)
-// router.get("/get-cats/:owner_id", getCatsByOwner)
-// router.put("/update-cat/:cat_id", updateCat)
-// router.delete("/delete-cat/:cat_id", deleteCat)
+// cats
+router.post("/create-cat", createCat);
+router.get("/get-cats", getCats);
+router.get("/admin/get-cats", getCatsAdmin);
+router.get("/get-cat/:id", getCatById);
+router.get("/get-cats/:owner_id", getCatsByOwner);
+router.put("/update-cat/:cat_id", updateCat);
+router.delete("/delete-cat/:cat_id", deleteCat);
 // ! user
 // router.post("/register", registerUser)
 // router.post("/login", loginUser)
