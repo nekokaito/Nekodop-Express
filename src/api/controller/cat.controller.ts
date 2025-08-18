@@ -6,7 +6,6 @@ import { CatPost } from "../../utils/type";
 
 // Create Cat
 export const createCat = async (req: Request, res: Response) => {
-  const id = uuidv4();
   const {
     catOwnerId,
     catName,
@@ -22,6 +21,20 @@ export const createCat = async (req: Request, res: Response) => {
     additionalInformation,
   }: CatPost = req.body;
 
+  if (!catOwnerId || !catName) {
+    return sendJson(
+      res,
+      "catPost",
+      null,
+      {
+        message: "catOwnerId and catName are required",
+        error: true,
+      },
+      400
+    );
+  }
+
+  const id = uuidv4();
   const adoptedInt = adopted ? 1 : 0;
 
   await db`
@@ -33,9 +46,14 @@ export const createCat = async (req: Request, res: Response) => {
       ${ownerName}, ${ownerAddress}, ${ownerPhone}, ${ownerEmail}, ${adoptedInt}, ${additionalInformation}
     )`;
 
-  sendJson(res, "catPost", req.body, {
-    message: "Cat posted for adoption",
-  });
+  sendJson(
+    res,
+    "catPost",
+    { id, ...req.body },
+    {
+      message: "Cat posted for adoption",
+    }
+  );
 };
 
 // Get Cat
@@ -79,22 +97,35 @@ export const getCatsByOwner = async (req: Request, res: Response) => {
 
 export const updateCat = async (req: Request, res: Response) => {
   const { cat_id } = req.params;
-  const {
-    catName,
-    catImage,
-    catAge,
-    catGender,
-    catDescription,
-    ownerAddress,
-    ownerPhone,
-    ownerEmail,
-    adopted,
-    isApproved,
-    additionalInformation,
-  }: CatPost = req.body;
 
-  const adoptedInt = adopted ? 1 : 0;
-  const isApprovedInt = isApproved ? 1 : 0;
+  // fetch the current cat first
+  const existingCat = await db`SELECT * FROM cats WHERE id = ${cat_id}`.then(
+    (r) => r[0]
+  );
+  if (!existingCat) {
+    return sendJson(
+      res,
+      "cat",
+      null,
+      { message: "Cat not found", error: true },
+      404
+    );
+  }
+
+  // use new values if provided, otherwise fallback to existing
+  const {
+    catName = existingCat.cat_name,
+    catImage = existingCat.cat_image,
+    catAge = existingCat.cat_age,
+    catGender = existingCat.cat_gender,
+    catDescription = existingCat.cat_description,
+    ownerAddress = existingCat.owner_address,
+    ownerPhone = existingCat.owner_phone,
+    ownerEmail = existingCat.owner_email,
+    adopted = existingCat.adopted,
+    isApproved = existingCat.is_approved, // 0 | 1 | 2
+    additionalInformation = existingCat.additional_information,
+  } = req.body;
 
   await db`
     UPDATE cats SET 
@@ -106,17 +137,12 @@ export const updateCat = async (req: Request, res: Response) => {
       owner_address = ${ownerAddress},
       owner_phone = ${ownerPhone},
       owner_email = ${ownerEmail},
-      adopted = ${adoptedInt},
-      is_approved = ${isApprovedInt},
+      adopted = ${adopted ? 1 : 0},
+      is_approved = ${isApproved},
       additional_information = ${additionalInformation}
     WHERE id = ${cat_id}`;
 
-  sendJson(
-    res,
-    "cat",
-    { id: cat_id, ...req.body },
-    { message: "Cat updated successfully" }
-  );
+  sendJson(res, "cat", { id: cat_id }, { message: "Cat updated successfully" });
 };
 
 export const deleteCat = async (req: Request, res: Response) => {

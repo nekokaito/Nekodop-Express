@@ -8,6 +8,16 @@ import {
   getCatsByOwner,
   updateCat,
 } from "../controller/cat.controller";
+import {
+  deleteUser,
+  getUserById,
+  getUsers,
+  isAdmin,
+  loginUser,
+  registerUser,
+  updatePassword,
+  updateUser,
+} from "../controller/user.controller";
 
 const router = Router();
 
@@ -19,14 +29,15 @@ router.get("/get-cat/:id", getCatById);
 router.get("/get-cats/:owner_id", getCatsByOwner);
 router.put("/update-cat/:cat_id", updateCat);
 router.delete("/delete-cat/:cat_id", deleteCat);
-// ! user
-// router.post("/register", registerUser)
-// router.post("/login", loginUser)
-// router.get("/get-user/:id", getUserById)
-// router.get("/get-users", getUsers)
-// router.put("/update-user/:user_id", updateUser)
-// router.put("/update-password/:user_id", updatePassword)
-// router.delete("/delete-user/:req_id/:user_id", deleteUser)
-// router.get("/is-admin/:id", isAdmin)
+
+// users
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.get("/get-user/:id", getUserById);
+router.get("/get-users", getUsers);
+router.put("/update-user/:user_id", updateUser);
+router.put("/update-password/:user_id", updatePassword);
+router.delete("/delete-user/:req_id/:user_id", deleteUser);
+router.get("/is-admin/:id", isAdmin);
 
 export default router;

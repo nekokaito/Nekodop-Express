@@ -11,12 +11,12 @@ export const registerUser = async (req: Request, res: Response) => {
 
   await db`INSERT INTO users (id, name, email, password, profile_picture) VALUES (${id}, ${userName}, ${email}, ${password}, ${profilePicture})`;
 
-  sendJson(
-    res,
-    "user",
-    { id, name: userName, email, profilePicture },
-    { message: "User created" }
-  );
+  const user = await db`
+    SELECT id, name, email, profile_picture, created_at
+    FROM users
+    WHERE email = ${email} AND password = ${password}
+  `.then((r) => r[0]);
+  sendJson(res, "user", user, { message: "User created" });
 };
 
 //login user
@@ -24,7 +24,7 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password }: User = req.body;
 
   const user = await db`
-    SELECT id, name, email, profile_picture
+    SELECT id, name, email, profile_picture, created_at
     FROM users
     WHERE email = ${email} AND password = ${password}
   `.then((r) => r[0]);
@@ -45,7 +45,7 @@ export const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const user = await db`
-    SELECT id, name, email, profile_picture, user_role
+    SELECT id, name, email, profile_picture, user_role, created_at
     FROM users
     WHERE id = ${id}
   `.then((r) => r[0]);
@@ -66,7 +66,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
   const users =
-    await db`SELECT id, name, email, profile_picture, user_role FROM users`;
+    await db`SELECT id, name, email, profile_picture, user_role, created_at FROM users`;
   sendJson(res, "users", users, {
     message: "User retrieved successfully",
   });
@@ -75,11 +75,32 @@ export const getUsers = async (req: Request, res: Response) => {
 // Update user profile
 export const updateUser = async (req: Request, res: Response) => {
   const { user_id } = req.params;
-  const { userName, email, profilePicture }: User = req.body;
+
+  // fetch existing user
+  const existingUser = await db`
+    SELECT * FROM users WHERE id = ${user_id}
+  `.then((r) => r[0]);
+
+  if (!existingUser) {
+    return sendJson(
+      res,
+      "user",
+      null,
+      { message: "User not found", error: true },
+      404
+    );
+  }
+
+  // use new values if provided, otherwise fallback to existing
+  const {
+    userName = existingUser.name,
+    email = existingUser.email,
+    profilePicture = existingUser.profile_picture,
+  } = req.body;
 
   await db`
-    UPDATE users 
-    SET name = ${userName}, email = ${email}, profile_picture = ${profilePicture} 
+    UPDATE users
+    SET name = ${userName}, email = ${email}, profile_picture = ${profilePicture}
     WHERE id = ${user_id}
   `;
 
