@@ -3,41 +3,81 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "../config/database";
 import { sendJson } from "../../utils";
 import { User } from "../../utils/type";
+import bcrypt from "bcryptjs";
 
 // register user
 export const registerUser = async (req: Request, res: Response) => {
   const { userName, email, password, profilePicture }: User = req.body;
-  const id = uuidv4();
 
-  await db`INSERT INTO users (id, name, email, password, profile_picture) VALUES (${id}, ${userName}, ${email}, ${password}, ${profilePicture})`;
+  const existingUser = await db`
+    SELECT id FROM users WHERE email = ${email}
+  `.then((r) => r[0]);
+
+  if (existingUser) {
+    return sendJson(
+      res,
+      "user",
+      null,
+      {
+        message: "Email already registered",
+        error: true,
+      },
+      400
+    );
+  }
+
+  const id = uuidv4();
+  const salt = await bcrypt.genSalt(10);
+  const encryptedPassword = await bcrypt.hash(password, salt);
+
+  await db`
+    INSERT INTO users (id, name, email, password, profile_picture) 
+    VALUES (${id}, ${userName}, ${email}, ${encryptedPassword}, ${profilePicture})
+  `;
 
   const user = await db`
     SELECT id, name, email, profile_picture, created_at
     FROM users
-    WHERE email = ${email} AND password = ${password}
+    WHERE id = ${id}
   `.then((r) => r[0]);
+
   sendJson(res, "user", user, { message: "User created" });
 };
 
-//login user
+// login user
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password }: User = req.body;
 
   const user = await db`
-    SELECT id, name, email, profile_picture, created_at
+    SELECT *
     FROM users
-    WHERE email = ${email} AND password = ${password}
+    WHERE email = ${email}
   `.then((r) => r[0]);
 
   if (!user) {
-    return sendJson(res, "user", null, {
-      message: "Invalid email or password",
-      error: true,
-    });
+    return sendJson(
+      res,
+      "user",
+      null,
+      { message: "Invalid email", error: true },
+      400
+    );
   }
-  sendJson(res, "user", user, {
-    message: "Login successful",
-  });
+
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    return sendJson(
+      res,
+      "user",
+      null,
+      { message: "Invalid password", error: true },
+      401
+    );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { password: _, ...userData } = user;
+  sendJson(res, "user", userData, { message: "Login successful" });
 };
 
 // Get User by ID
@@ -76,7 +116,7 @@ export const getUsers = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   const { user_id } = req.params;
 
-  // fetch existing user
+  // existing user
   const existingUser = await db`
     SELECT * FROM users WHERE id = ${user_id}
   `.then((r) => r[0]);
@@ -91,12 +131,27 @@ export const updateUser = async (req: Request, res: Response) => {
     );
   }
 
-  // use new values if provided, otherwise fallback to existing
   const {
     userName = existingUser.name,
     email = existingUser.email,
     profilePicture = existingUser.profile_picture,
   } = req.body;
+
+  if (email !== existingUser.email) {
+    const emailTaken = await db`
+      SELECT id FROM users WHERE email = ${email}
+    `.then((r) => r[0]);
+
+    if (emailTaken) {
+      return sendJson(
+        res,
+        "user",
+        null,
+        { message: "Email already in use", error: true },
+        400
+      );
+    }
+  }
 
   await db`
     UPDATE users
@@ -136,7 +191,9 @@ export const updatePassword = async (req: Request, res: Response) => {
     );
   }
 
-  if (user.password !== currentPassword) {
+  const isMyOldPassword = await bcrypt.compare(currentPassword, user.password);
+
+  if (!isMyOldPassword) {
     return sendJson(
       res,
       "user",
@@ -149,9 +206,12 @@ export const updatePassword = async (req: Request, res: Response) => {
     );
   }
 
+  const salt = await bcrypt.genSalt(10);
+  const encryptedNewPassword = await bcrypt.hash(newPassword, salt);
+
   await db`
     UPDATE users 
-    SET password = ${newPassword} 
+    SET password = ${encryptedNewPassword} 
     WHERE id = ${user_id}
   `;
 
