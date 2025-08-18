@@ -1,20 +1,13 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import userRoutes from "./routes/user.routes";
-import catRoutes from "./routes/cat.routes";
+import app from "./app";
 
-dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-app.get("/", (req, res) => {
-  res.send("Welcome to Nekodop API!");
-});
-app.use("/", userRoutes);
-app.use("/", catRoutes);
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+async function main() {
+    try {
+        app.listen(process.env.PORT, () => {
+            console.log(`server on http://localhost:${process.env.PORT}`);
+        });
+    } catch (err) {
+        console.log(err);
+    }
+}
+main();
